@@ -122,7 +122,7 @@ import UIKit
     fileprivate var previousItem: BLTNItem?
     fileprivate var presentingWindow: UIWindow?
 
-    public var isPrepared: Bool = false
+    fileprivate var isPrepared: Bool = false
     fileprivate var isPreparing: Bool = false
     fileprivate var shouldDisplayActivityIndicator: Bool = false
     fileprivate var lastActivityIndicatorColor: UIColor = .black
@@ -726,4 +726,10 @@ extension BLTNItemManager {
         precondition(isPrepared, "You must call the `prepare` function before interacting with the bulletin.")
     }
 
+}
+
+extension BLTNItemManager {
+    public var prepared: Bool {
+        return isPrepared
+    }
 }
