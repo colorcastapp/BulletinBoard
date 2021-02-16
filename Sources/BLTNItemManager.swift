@@ -122,7 +122,7 @@ import UIKit
     fileprivate var previousItem: BLTNItem?
     fileprivate var presentingWindow: UIWindow?
 
-    var isPrepared: Bool = false
+    public var isPrepared: Bool = false
     fileprivate var isPreparing: Bool = false
     fileprivate var shouldDisplayActivityIndicator: Bool = false
     fileprivate var lastActivityIndicatorColor: UIColor = .black
