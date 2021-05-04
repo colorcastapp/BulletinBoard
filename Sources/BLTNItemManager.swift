@@ -173,8 +173,6 @@ extension BLTNItemManager {
 
     fileprivate func prepare() {
 
-        assertIsMainThread()
-
         bulletinController = BulletinViewController()
         bulletinController.manager = self
 
@@ -207,7 +205,6 @@ extension BLTNItemManager {
 
     @objc(presentViewControllerAboveBulletin:animated:completion:)
     public func present(_ viewController: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
-        assertIsPrepared()
         self.bulletinController.present(viewController, animated: animated, completion: completion)
     }
 
@@ -227,9 +224,6 @@ extension BLTNItemManager {
 
     @discardableResult
     public func withContentView<Result>(_ transform: (UIView) throws -> Result) rethrows -> Result {
-
-        assertIsPrepared()
-        assertIsMainThread()
 
         let contentView = bulletinController.contentView
         let initialRetainCount = CFGetRetainCount(contentView)
@@ -259,9 +253,6 @@ extension BLTNItemManager {
 
     @objc public func displayActivityIndicator(color: UIColor? = nil) {
 
-        assertIsPrepared()
-        assertIsMainThread()
-
         shouldDisplayActivityIndicator = true
         lastActivityIndicatorColor = color ?? defaultActivityIndicatorColor
 
@@ -287,9 +278,6 @@ extension BLTNItemManager {
 
     @objc public func hideActivityIndicator() {
 
-        assertIsPrepared()
-        assertIsMainThread()
-
         shouldDisplayActivityIndicator = false
         bulletinController.swipeInteractionController?.cancelIfNeeded()
         refreshCurrentItemInterface(elementsChanged: false)
@@ -303,9 +291,6 @@ extension BLTNItemManager {
 
     @objc(pushItem:)
     public func push(item: BLTNItem) {
-
-        assertIsPrepared()
-        assertIsMainThread()
 
         previousItem = currentItem
         itemsStack.append(item)
@@ -322,9 +307,6 @@ extension BLTNItemManager {
      */
 
     @objc public func popItem() {
-
-        assertIsPrepared()
-        assertIsMainThread()
 
         guard let previousItem = itemsStack.popLast() else {
             popToRootItem()
@@ -354,9 +336,6 @@ extension BLTNItemManager {
     @objc(popToItem:orDismiss:)
     public func popTo(item: BLTNItem, orDismiss: Bool) {
         
-        assertIsPrepared()
-        assertIsMainThread()
-        
         for index in 0..<itemsStack.count  {
             
             if itemsStack[index] === item {
@@ -385,9 +364,6 @@ extension BLTNItemManager {
      */
 
     @objc public func popToRootItem() {
-
-        assertIsPrepared()
-        assertIsMainThread()
 
         guard currentItem !== rootItem else {
             return
@@ -441,10 +417,7 @@ extension BLTNItemManager {
         self.prepare()
 
         let isDetached = bulletinController.presentingViewController == nil
-        assert(isDetached, "Attempt to present a Bulletin that is already presented.")
 
-        assertIsPrepared()
-        assertIsMainThread()
         bulletinController.loadView()
 
         let refreshActivityIndicator = shouldDisplayActivityIndicator && isDetached
@@ -470,7 +443,7 @@ extension BLTNItemManager {
     public func showBulletin(in application: UIApplication,
                              animated: Bool = true,
                              completion: (() -> Void)? = nil) {
-        assert(presentingWindow == nil, "Attempt to present a Bulletin on top of another Bulletin window. Make sure to dismiss any existing bulletin before calling this method.")
+
         presentingWindow = UIWindow(frame: UIScreen.main.bounds)
         presentingWindow?.rootViewController = UIViewController()
         
@@ -498,9 +471,6 @@ extension BLTNItemManager {
 
     @objc(dismissBulletinAnimated:)
     public func dismissBulletin(animated: Bool = true) {
-
-        assertIsPrepared()
-        assertIsMainThread()
 
         currentItem.tearDown()
         currentItem.manager = nil
@@ -711,20 +681,6 @@ extension BLTNItemManager {
 
         return arrangedSubviews
 
-    }
-
-}
-
-// MARK: - Utilities
-
-extension BLTNItemManager {
-
-    fileprivate func assertIsMainThread() {
-        precondition(Thread.isMainThread, "BLTNItemManager must only be used from the main thread.")
-    }
-
-    fileprivate func assertIsPrepared() {
-        precondition(isPrepared, "You must call the `prepare` function before interacting with the bulletin.")
     }
 
 }
